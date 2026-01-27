@@ -14,17 +14,28 @@ prepend_path:
 #!/bin/bash -e
 
 # Make basic modufile first
+export CC=gcc-11
+export CXX=g++-11
 MODULEDIR="$INSTALLROOT/etc/modulefiles"
 MODULEFILE="$MODULEDIR/$PKGNAME"
 mkdir -p "$MODULEDIR"
 alibuild-generate-module > $MODULEFILE
 
-cmake "$SOURCEDIR"                                 \
-      -DCMAKE_CMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} \
-      -DCMAKE_INSTALL_PREFIX="$INSTALLROOT"        \
-      -DCMAKE_INSTALL_LIBDIR=lib                   \
-      ${CXXSTD:+-DCMAKE_CXX_STANDARD=$CXXSTD}
 
+# Recursively force <memory> to be the FIRST line of every file.
+# We do not use grep -q because we must ensure it is at the TOP,
+# not just "present somewhere in the file".
+find "$SOURCEDIR/source" -type f \( -name "*.h" -o -name "*.cxx" \) -print0 | while IFS= read -r -d '' FILE; do
+    # If line 1 is NOT "#include <memory>", prepend it.
+    sed -i '1{/^#include <memory>/!s/^/#include <memory>\n/}' "$FILE"
+done
+
+
+cmake "$SOURCEDIR"                                   \
+      -DCMAKE_CMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}   \
+      -DCMAKE_INSTALL_PREFIX="$INSTALLROOT"          \
+      -DCMAKE_INSTALL_LIBDIR=lib                     \
+      ${CXXSTD:+-DCMAKE_CXX_STANDARD=$CXXSTD}
 cmake --build . -- ${JOBS:+-j$JOBS} install
 
 # Make backward compatible in case a depending (older) package still needs libVMC.so
