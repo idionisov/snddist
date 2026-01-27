@@ -16,6 +16,14 @@ env:
   G4VMCINSTALL: "$GEANT4_VMC_ROOT"
 ---
 #!/bin/bash -e
+
+
+# Newer versions fail at the compilation
+unset CPLUS_INCLUDE_PATH
+unset C_INCLUDE_PATH
+export CC=gcc-11
+export CXX=g++-11
+
 LDFLAGS="$LDFLAGS -L$GEANT4_ROOT/lib"            \
   cmake "$SOURCEDIR"                             \
     -DCMAKE_CMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} \
