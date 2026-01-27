@@ -36,9 +36,27 @@ incremental_recipe: |
 #!/bin/bash -e
 unset ROOTSYS
 
-COMPILER_CC=cc
-COMPILER_CXX=c++
-COMPILER_LD=c++
+
+ALIBUILD_GCC_VERSION=11
+
+export CC=gcc-11
+export CXX=g++-11
+export CXXFLAGS="-I/usr/include/c++/11 -I/usr/include -I$SOURCEDIR/core/clib/inc $CXXFLAGS"
+export CXXFLAGS="$CXXFLAGS -DHAVE_STRLCPY -DHAVE_STRLCAT"
+
+export CMAKE_CXX_COMPILER=g++-11
+export CMAKE_C_COMPILER=gcc-11
+export CMAKE_LINKER=g++-11
+
+# ROOT's core/clib/inc/strlcpy.h contains declaration that don't match
+# newer systemc's noexcept signatures, causing compilation errors
+if grep -q "strlcpy" /usr/include/string.h; then
+    if [ -f "$SOURCEDIR/core/clib/inc/strlcpy.h" ]; then
+        sed -i 's/size_t strlcpy/size_t strlcpy_renamed/' "$SOURCEDIR/core/clib/inc/strlcpy.h"
+        sed -i 's/size_t strlcat/size_t strlcat_renamed/' "$SOURCEDIR/core/clib/inc/strlcpy.h"
+    fi
+fi
+
 case $PKGVERSION in
   v6-20*) 
      [[ "$CXXFLAGS" == *'-std=c++11'* ]] && CMAKE_CXX_STANDARD=11 || true
@@ -51,6 +69,7 @@ case $PKGVERSION in
     [[ "$CXXFLAGS" == *'-std=c++17'* ]] && CXX17=1 || true
   ;;
 esac
+
 
 case $ARCHITECTURE in
   osx*)
