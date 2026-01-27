@@ -16,6 +16,11 @@ build_requires:
 ---
 #!/bin/bash -e
 [[ -e $SOURCEDIR/bindings ]] && { XROOTD_V4=True; XROOTD_PYTHON=True; } || XROOTD_PYTHON=False
+export PYTHON_EXECUTABLE=$(which python3)
+if [ -d $VIRTUAL_ENV ]; then
+  export PATH="$VIRTUAL_ENV/bin:$PATH"
+fi
+
 PYTHON_EXECUTABLE=$(/usr/bin/env python3 -c 'import sys; print(sys.executable)')
 PYTHON_VER=$( ${PYTHON_EXECUTABLE} -c 'import sys; print(f"{sys.version_info.major}.{sys.version_info.minor}")' )
 
