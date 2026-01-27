@@ -48,8 +48,7 @@ incremental_recipe: |
             ${EVTGEN_VERSION:+EvtGen/$EVTGEN_VERSION-$EVTGEN_REVISION}          \\
             ${FAIRROOT_VERSION:+FairRoot/$FAIRROOT_VERSION-$FAIRROOT_REVISION}  \\
             ${MADGRAPH5_VERSION:+madgraph5/$MADGRAPH5_VERSION-$MADGRAPH5_REVISION} \\
-            ${ALPACA_VERSION:+alpaca/$ALPACA_VERSION-$ALPACA_REVISION}          \\
-            ${FEDRA_VERSION:+FEDRA/$FEDRA_VERSION-$FEDRA_REVISION}
+            ${ALPACA_VERSION:+alpaca/$ALPACA_VERSION-$ALPACA_REVISION}          
   # Our environment
   setenv EOSSHIP root://eospublic.cern.ch/
   setenv SNDSW_ROOT \$::env(BASEDIR)/$PKGNAME/\$version
@@ -75,12 +74,6 @@ incremental_recipe: |
   append-path PYTHONPATH        \$::env(XROOTD_ROOT)/lib/python/site-packages
   # required for ubuntu22.04: don't know how to fix this more elegant
   append-path PYTHONPATH        \$::env(XROOTD_ROOT)/local/lib/python3.10/dist-packages
-
-  append-path ROOT_INCLUDE_PATH \$::env(FEDRA_ROOT)/include
-  append-path ROOT_INCLUDE_PATH \$::env(FEDRA_ROOT)/include/smatrix
-  append-path ROOT_INCLUDE_PATH \$::env(FEDRA_ROOT)/include/vt++
-  append-path ROOT_INCLUDE_PATH \$::env(FEDRA_ROOT)/include/dataIO
-  append-path PYTHONPATH \$::env(FEDRA_ROOT)/python
 
   prepend-path PYTHONPATH \$::env(SNDSW_ROOT)/python
   append-path PYTHONPATH \$::env(SNDSW_ROOT)/shipLHC/scripts
@@ -170,8 +163,7 @@ module load BASE/1.0                                                            
             ${EVTGEN_VERSION:+EvtGen/$EVTGEN_VERSION-$EVTGEN_REVISION}          \\
             ${FAIRROOT_VERSION:+FairRoot/$FAIRROOT_VERSION-$FAIRROOT_REVISION}	\\
             ${MADGRAPH5_VERSION:+madgraph5/$MADGRAPH5_VERSION-$MADGRAPH5_REVISION} \\
-            ${ALPACA_VERSION:+alpaca/$ALPACA_VERSION-$ALPACA_REVISION}          \\
-            ${FEDRA_VERSION:+FEDRA/$FEDRA_VERSION-$FEDRA_REVISION}
+            ${ALPACA_VERSION:+alpaca/$ALPACA_VERSION-$ALPACA_REVISION}         
 # Our environment
 setenv EOSSHIP root://eospublic.cern.ch/
 setenv SNDSW_ROOT \$::env(BASEDIR)/$PKGNAME/\$version
@@ -200,11 +192,6 @@ append-path PYTHONPATH \$::env(XROOTD_ROOT)/lib/python/site-packages
 # required for ubuntu22.04: don't know how to fix this more elegant
 append-path PYTHONPATH  \$::env(XROOTD_ROOT)/local/lib/python3.10/dist-packages
 
-append-path ROOT_INCLUDE_PATH \$::env(FEDRA_ROOT)/include
-append-path ROOT_INCLUDE_PATH \$::env(FEDRA_ROOT)/include/smatrix
-append-path ROOT_INCLUDE_PATH \$::env(FEDRA_ROOT)/include/vt++
-append-path ROOT_INCLUDE_PATH \$::env(FEDRA_ROOT)/include/dataIO
-append-path PYTHONPATH \$::env(FEDRA_ROOT)/python
 
 $([[ ${ARCHITECTURE:0:3} == osx ]] && echo "prepend-path DYLD_LIBRARY_PATH \$::env(SNDSW_ROOT)/lib")
 EoF
