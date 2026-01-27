@@ -10,7 +10,7 @@ prepend_path:
   PYTHONPATH: $PYTHON_MODULES_ROOT/lib/python$PYVSN/site-packages:$PYTHONPATH
 prefer_system: (?!slc5)
 prefer_system_check: |
-  python3 -c 'import wheel, matplotlib,numpy,scipy,certifi,IPython,ipywidgets,ipykernel,notebook.notebookapp,metakernel,sklearn,six,pymongo,mongoengine,pytest,pylint,yaml'
+  python3 -c 'import wheel, matplotlib,numpy,scipy,certifi,IPython,ipywidgets,ipykernel,jupyter_server.serverapp,metakernel,sklearn,six,pymongo,mongoengine,pytest,pylint,yaml'
   if [ $? -ne 0 ]
   then
       printf "Required Python modules are missing. You can install them with pip3:\n  pip3 install matplotlib numpy scipy certifi ipython ipywidgets ipykernel notebook metakernel scikit-learn six pymongo mongoengine pytest pylint pyyaml\n"
@@ -59,33 +59,44 @@ python3 -m pip install --upgrade pip
 
 # Install setuptools upfront, since this seems to create issues now...
 python3 -m pip install -IU "setuptools < 60.0"
-python3 -m pip install -IU wheel
+python3 -m pip install --upgrade setuptools wheel
 python3 -m pip install -IU numpy
 
-for X in "mock==1.3.0"          \
-         "certifi==2019.6.16"   \
-         "ipython==5.8.0"       \
-         "ipywidgets==5.2.3"    \
-         "ipykernel==4.10.0"    \
-         "notebook==4.4.1"      \
-         "metakernel==0.24.2"   \
-         "scipy==1.6.1"         \
-         "scikit-learn==0.24.1" \
-         "matplotlib==3.5.1"    \
+for X in "mock"          \
+         "certifi"   \
+         "ipython"       \
+         "ipywidgets"    \
+         "ipykernel"    \
+         "notebook"      \
+         "metakernel"   \
+         "scipy"         \
+         "scikit-learn" \
+         "matplotlib"    \
          "six"                  \
          "future"               \
-         "pymongo==3.10.1"      \
-         "pytest==4.6.9"        \
-         "pylint==2.0.1"        \
-         "PyYAML==5.1"          \
-         "psutil==5.9.4"       \
-         "requests==2.25.0"     \
-         "mongoengine==0.23.1"
+         "pymongo"      \
+         "pytest"        \
+         "pylint"        \
+         "PyYAML"          \
+         "psutil"       \
+         "requests"     \
+         "mongoengine"
 do
-  python3 -m pip install --user $X
+  if [ -d "$VIRTUAL_ENV" ]; then
+    python3 -m pip install $X
+  else
+    python3 -m pip install --user $X
+fi
 done
 
 # for some unknown reason lib directory created with access only for user
+if [ ! -d "$PYTHONUSERBASE/lib" ]; then
+  cp -r "$VIRTUAL_ENV/lib" "$PYTHONUSERBASE/lib"
+fi
+if [ ! -d "$PYTHONUSERBASE/bin" ]; then
+  cp -r "$VIRTUAL_ENV/bin" "$PYTHONUSERBASE/bin"
+fi
+
 chmod -R 755 $PYTHONUSERBASE/lib
 unset PYTHONUSERBASE
 
@@ -106,7 +117,7 @@ grep -IlRE '#!.*python' $INSTALLROOT/bin | \
 # Test whether we can load Python modules (this is not obvious as some of them
 # do not indicate some of their dependencies and break at runtime).
 PYTHONPATH=$INSTALLROOT/lib64/python$PYVER/site-packages:$INSTALLROOT/lib/python$PYVER/site-packages:$PYTHONPATH \
-  python3 -c 'import matplotlib,numpy,scipy,certifi,IPython,ipywidgets,ipykernel,notebook.notebookapp,metakernel,sklearn,six,pymongo,mongoengine,pytest,pylint'
+  python3 -c 'import matplotlib,numpy,scipy,certifi,IPython,ipywidgets,ipykernel,metakernel,sklearn,six,pymongo,mongoengine,pytest,pylint'
 
 # Modulefile
 MODULEDIR="$INSTALLROOT/etc/modulefiles"
