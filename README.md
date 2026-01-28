@@ -1,3 +1,24 @@
+# Installing requirements
+
+### Debian based distributions
+
+```
+sudo apt update
+sudo apt upgrade
+sudo apt install -y \
+  build-essential gfortran cmake \
+  autoconf automake libtool libtool-bin pkg-config autopoint texinfo gettext \
+  bison flex libbz2-dev libncurses-dev libglu1-mesa-dev \
+  libx11-dev libxpm-dev libxext-dev libxft-dev \
+  libfreetype6-dev libxml2-dev libpng-dev libssl-dev \
+  liblzma-dev libgsl-dev libzmq3-dev libfabric-dev \
+  python3-wheel libcurl4-openssl-dev uuid gtk-doc-tools \
+  libxmu-dev libxpm-dev libfabric-bin python3-distutils-extra \
+  gcc-11 g++-11 python3-virtualenv libnsl-dev libxxhash-dev \
+  libzstd-dev liblzma-dev libglew-dev libcfitsio-dev libblas-dev \
+  libopenblas-dev
+```
+
 # alidist
 Recipes to build ALICE SW
 
