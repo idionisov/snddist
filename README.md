@@ -17,6 +17,9 @@ sudo apt install -y \
   gcc-11 g++-11 python3-virtualenv libnsl-dev libxxhash-dev \
   libzstd-dev liblzma-dev libglew-dev libcfitsio-dev libblas-dev \
   libopenblas-dev
+
+# Make sure python dvelopment tools and virtial environmnets are installed
+sudo apt install python3 python3-venv python3-dev
 ```
 
 # alidist
