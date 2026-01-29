@@ -30,31 +30,12 @@ overrides:
       which gfortran || { echo "gfortran missing"; exit 1; }
       which cc && test -f $(dirname $(which cc))/c++ && printf "#define GCCVER ((__GNUC__*1000)+(__GNUC_MINOR__*100)+(__GNUC_PATCHLEVEL__))\n#if (GCCVER < 10200 )\n#error \"System's GCC cannot be used: we need GCC 10.X. We are going to compile our own version.\"\n#endif\n" | cc -xc++ - -c -o /dev/null
   XRootD:
-    tag: v5.5.5
+    tag: v5.7.3
     prefer_system_check: |
       ls $XROOTD_ROOT/bin > /dev/null && \
       ls $XROOTD_ROOT/lib > /dev/null && \
       ls $FAIRROOT_ROOT/include > /dev/null 
   ROOT:
-    tag: "v6-28-04"
-    source: https://github.com/root-project/root
-    requires:
-      - GSL
-      - opengl:(?!osx)
-      - Xdevel:(?!osx)
-      - FreeType:(?!osx)
-      - Python-modules
-      - zlib
-      - libxml2
-      - "OpenSSL:(?!osx)"
-      - "osx-system-openssl:(osx.*)"
-      - XRootD
-      - pythia
-      - pythia6
-    build_requires:
-      - CMake
-      - "Xcode:(osx.*)"
-      - libxml2
     prefer_system_check: |
       ls $ROOT_ROOT/bin > /dev/null && \
       ls $ROOT_ROOT/cmake > /dev/null && \
@@ -68,10 +49,11 @@ overrides:
       ls $ROOT_ROOT/macros > /dev/null && \
       ls $ROOT_ROOT/man > /dev/null && \
       true
+
   GSL:
-    version: "v1.16%(defaults_upper)s"
+    version: "v2.8"
     source: https://github.com/alisw/gsl
-    tag: "release-1-16"
+    tag: "v2.8"
     prefer_system_check: |
       printf "#include \"gsl/gsl_version.h\"\n#define GSL_V GSL_MAJOR_VERSION * 100 + GSL_MINOR_VERSION\n# if (GSL_V < 116)\n#error \"Cannot use system's gsl. Notice we only support versions from 1.16 (included)\"\n#endif\nint main(){}"\
        | gcc  -I"$GSL_ROOT/include" -xc++ - -o /dev/null
@@ -86,15 +68,15 @@ overrides:
       type cmake && verge 3.23.1 `cmake --version | sed -e 's/.* //' | cut -d. -f1,2,3`
   FairRoot:
     version: "%(tag_basename)s"
-    tag: "v18.4.9"
+    tag: "v19.0.0"
     prefer_system_check: |
       ls $FAIRROOT_ROOT/ > /dev/null && \
       ls $FAIRROOT_ROOT/lib > /dev/null && \
       ls $FAIRROOT_ROOT/include > /dev/null && \
-      grep v18.4.9 $FAIRROOT_ROOT/include/FairVersion.h
+      grep "19.0.0" $FAIRROOT_ROOT/include/FairVersion.h
   FairMQ:
     version: "%(tag_basename)s"
-    tag: "v1.4.55"
+    tag: "v1.9.1"
     prefer_system_check: |
       ls $FAIRMQ_ROOT/ > /dev/null && \
       ls $FAIRMQ_ROOT/lib > /dev/null && \
@@ -106,7 +88,7 @@ overrides:
       ls $FAIRLOGGER_ROOT/ > /dev/null && \
       ls $FAIRLOGGER_ROOT/lib > /dev/null && \
       ls $FAIRLOGGER_ROOT/include/fairlogger > /dev/null && \
-      grep 1.9.0 $FAIRLOGGER_ROOT/include/fairlogger/Version.h
+      grep "1.9.0" $FAIRLOGGER_ROOT/include/fairlogger/Version.h
   GEANT4:
     version: "%(tag_basename)s"
     tag: v11.1.0-snd
@@ -233,10 +215,14 @@ overrides:
       ls $PHOTOSPP_ROOT/lib/libPhotosppHepMC.so.1.0.0 > /dev/null && \
       ls $PHOTOSPP_ROOT/lib/libPhotospp.so > /dev/null && \
       true
+  POWHEG:
+    version: "%(tag_basename)s"
+    source: https://github.com/SND-LHC/POWHEG
+    tag: "r4110-forward-snd"
   Tauolapp:
     version: "%(tag_basename)s"
-    source: https://github.com/ShipSoft/Tauolapp
-    tag: v1.1.5-ship
+    source: https://github.com/SND-LHC/TAUOLA
+    tag: v1.1.8
   pythia6:
     version: "%(tag_basename)s"
     source: https://github.com/SND-LHC/pythia6
