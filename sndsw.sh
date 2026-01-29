@@ -17,6 +17,14 @@ requires:
   - XRootD
 incremental_recipe: |
   rsync -ar $SOURCEDIR/ $INSTALLROOT/
+    if [ -n "$VIRTUAL_ENV" ]; then
+      echo "VENV Detected: Forcing usage of $VIRTUAL_ENV"
+      export PATH="$VIRTUAL_ENV/bin:$PATH"
+      export PYTHON_EXECUTABLE="$VIRTUAL_ENV/bin/python3"
+      export PYTHON_CONFIG="$VIRTUAL_ENV/bin/python3-config"
+    else
+      export PYTHON_EXECUTABLE=$(which python3)
+    fi
   make ${JOBS:+-j$JOBS}
   make install
   rsync -a $BUILDDIR/bin $INSTALLROOT/
@@ -74,6 +82,7 @@ incremental_recipe: |
   append-path PYTHONPATH        \$::env(XROOTD_ROOT)/lib/python/site-packages
   # required for ubuntu22.04: don't know how to fix this more elegant
   append-path PYTHONPATH        \$::env(XROOTD_ROOT)/local/lib/python3.10/dist-packages
+
 
   prepend-path PYTHONPATH \$::env(SNDSW_ROOT)/python
   append-path PYTHONPATH \$::env(SNDSW_ROOT)/shipLHC/scripts
@@ -163,7 +172,7 @@ module load BASE/1.0                                                            
             ${EVTGEN_VERSION:+EvtGen/$EVTGEN_VERSION-$EVTGEN_REVISION}          \\
             ${FAIRROOT_VERSION:+FairRoot/$FAIRROOT_VERSION-$FAIRROOT_REVISION}	\\
             ${MADGRAPH5_VERSION:+madgraph5/$MADGRAPH5_VERSION-$MADGRAPH5_REVISION} \\
-            ${ALPACA_VERSION:+alpaca/$ALPACA_VERSION-$ALPACA_REVISION}         
+            ${ALPACA_VERSION:+alpaca/$ALPACA_VERSION-$ALPACA_REVISION}        
 # Our environment
 setenv EOSSHIP root://eospublic.cern.ch/
 setenv SNDSW_ROOT \$::env(BASEDIR)/$PKGNAME/\$version
