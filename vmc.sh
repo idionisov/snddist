@@ -14,8 +14,9 @@ prepend_path:
 #!/bin/bash -e
 
 # Make basic modufile first
-export CC=gcc-11
-export CXX=g++-11
+COMPILER_CC=cc
+COMPILER_CXX=c++
+COMPILER_LD=c++
 MODULEDIR="$INSTALLROOT/etc/modulefiles"
 MODULEFILE="$MODULEDIR/$PKGNAME"
 mkdir -p "$MODULEDIR"
