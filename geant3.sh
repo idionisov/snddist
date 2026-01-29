@@ -19,20 +19,11 @@ if [ $FVERSION -ge 10 ]; then
    echo "Fortran version $FVERSION"
    SPECIALFFLAGS=1
 fi
-
-# Set correct compiler version
-export CC=gcc-11
-export CXX=g++-11
-
-# Address clash between Modern C++ and Legacy Fortran
-find $SOURCEDIR -type f '(' -name '*.h' -o -name '*.cxx' ')' -print0 | \
-    xargs -0 sed -i '1{/^#include <memory>/!s/^/#ifdef __cplusplus\n#include <memory>\n#endif\n/}'
-
-
 cmake $SOURCEDIR -DCMAKE_INSTALL_PREFIX=$INSTALLROOT      \
                  -DCMAKE_BUILD_TYPE=$CMAKE_BUILD_TYPE     \
                  ${CXXSTD:+-DCMAKE_CXX_STANDARD=$CXXSTD}  \
                  -DCMAKE_SKIP_RPATH=TRUE \
+                 -DCMAKE_POLICY_DEFAULT_CMP0074=NEW       \
                  ${SPECIALFFLAGS:+-DCMAKE_Fortran_FLAGS="-fallow-argument-mismatch -fallow-invalid-boz -fno-tree-loop-distribute-patterns"}
 make ${JOBS:+-j $JOBS} install
 
