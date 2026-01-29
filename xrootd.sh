@@ -1,6 +1,6 @@
 package: XRootD
 version: "%(tag_basename)s"
-tag: "v5.4.3"
+tag: "v5.7.3"
 source: https://github.com/xrootd/xrootd
 requires:
  - "OpenSSL:(?!osx)"
@@ -15,13 +15,18 @@ build_requires:
  - alibuild-recipe-tools
 ---
 #!/bin/bash -e
+COMPILER_CC=cc
+COMPILER_CXX=c++
+COMPILER_LD=c++
 [[ -e $SOURCEDIR/bindings ]] && { XROOTD_V4=True; XROOTD_PYTHON=True; } || XROOTD_PYTHON=False
-export PYTHON_EXECUTABLE=$(which python3)
 if [ -d $VIRTUAL_ENV ]; then
   export PATH="$VIRTUAL_ENV/bin:$PATH"
+  export PYTHON_EXECUTABLE="$VIRTUAL_ENV/bin/python3"
+  export PYTHON_CONFIG="$VIRTUAL_ENV/bin/python3-config"else
+else
+  export PYTHON_EXECUTABLE=$(which python3)
 fi
 
-PYTHON_EXECUTABLE=$(/usr/bin/env python3 -c 'import sys; print(sys.executable)')
 PYTHON_VER=$( ${PYTHON_EXECUTABLE} -c 'import sys; print(f"{sys.version_info.major}.{sys.version_info.minor}")' )
 
 case $ARCHITECTURE in
@@ -56,26 +61,35 @@ rsync -a --delete $SOURCEDIR/ $BUILDDIR
 mkdir build
 pushd build
 cmake "$BUILDDIR"                                                     \
+      --log-level DEBUG                                               \
       ${CMAKE_GENERATOR:+-G "$CMAKE_GENERATOR"}                       \
+      -DCMAKE_CXX_COMPILER=$COMPILER_CXX                              \
+      -DCMAKE_C_COMPILER=$COMPILER_CC                                 \
+      -DCMAKE_LINKER=$COMPILER_LD                                     \
       -DCMAKE_INSTALL_PREFIX=$INSTALLROOT                             \
       ${CMAKE_FRAMEWORK_PATH+-DCMAKE_FRAMEWORK_PATH=$CMAKE_FRAMEWORK_PATH} \
       -DCMAKE_INSTALL_LIBDIR=lib                                      \
+      -DXRDCL_ONLY=ON                                                 \
       -DENABLE_CRYPTO=ON                                              \
       -DENABLE_PERL=OFF                                               \
       -DVOMSXRD_SUBMODULE=OFF                                         \
       ${XROOTD_PYTHON:+-DENABLE_PYTHON=ON}                            \
       ${XROOTD_PYTHON:+-DPYTHON_EXECUTABLE=$PYTHON_EXECUTABLE}        \
-      ${UUID_ROOT:+-DUUID_LIBRARIES=$UUID_ROOT/lib/libuuid.so}        \
-      ${UUID_ROOT:+-DUUID_LIBRARY=$UUID_ROOT/lib/libuuid.so}          \
+      ${XROOTD_PYTHON:+-DPIP_OPTIONS='--force-reinstall --ignore-installed --verbose'} \
+    ${UUID_ROOT:+-DUUID_LIBRARIES="$UUID_ROOT/lib/libuuid.so"} \
+      ${UUID_ROOT:+-DUUID_LIBRARY="$UUID_ROOT/lib/libuuid.so"} \
       ${UUID_ROOT:+-DUUID_INCLUDE_DIRS=$UUID_ROOT/include}            \
       ${UUID_ROOT:+-DUUID_INCLUDE_DIR=$UUID_ROOT/include}             \
-      -DENABLE_KRB5=TRUE                                               \
+      -DENABLE_KRB5=TRUE                                              \
+      -DENABLE_FUSE=OFF                                               \
+      -DENABLE_VOMS=OFF                                               \
+      -DENABLE_XRDCLHTTP=OFF                                          \
       -DENABLE_READLINE=OFF                                           \
       -DCMAKE_BUILD_TYPE=RelWithDebInfo                               \
       ${OPENSSL_ROOT:+-DOPENSSL_ROOT_DIR=$OPENSSL_ROOT}               \
+      ${OPENSSL_ROOT:+-DOPENSSL_INCLUDE_DIRS=$OPENSSL_ROOT/include}   \
+      ${OPENSSL_ROOT:+-DOPENSSL_LIBRARIES=$OPENSSL_ROOT/lib/libssl.$SONAME;$OPENSSL_ROOT/lib/libcrypto.$SONAME} \
       ${ZLIB_ROOT:+-DZLIB_ROOT=$ZLIB_ROOT}                            \
-      -DXROOTD_PYBUILD_ENV='CC=c++ CFLAGS=\"-std=c++17\"'             \
-      -DPIP_OPTIONS='--force-reinstall --ignore-installed'            \
       -DCMAKE_CXX_FLAGS_RELWITHDEBINFO="-Wno-error"
 
 cmake --build . -- ${JOBS:+-j$JOBS} install
