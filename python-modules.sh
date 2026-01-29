@@ -80,7 +80,7 @@ for X in "mock"          \
          "PyYAML"          \
          "psutil"       \
          "requests"     \
-         "mongoengine"
+         "mongoengine" 
 do
   if [ -d "$VIRTUAL_ENV" ]; then
     python3 -m pip install $X
